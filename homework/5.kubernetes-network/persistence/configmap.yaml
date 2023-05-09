@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xeon-services
+data:
+  postgres.db_name: "testdatabase"
+  postgres.db_user: "testuser"
+  redmine.postgres_service: "database"
+

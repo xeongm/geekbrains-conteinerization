@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xeon-redmine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xeon-redmine
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: xeon-redmine
+    spec:
+      containers:
+      - image: redmine:4.1.1
+        name: redmine
+        env:
+          - name: REDMINE_DB_POSTGRES
+            valueFrom:
+              configMapKeyRef:
+                name: xeon-services
+                key: redmine.postgres_service
+          - name: REDMINE_DB_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: xeon-services
+                key: postgres.db_user
+          - name: REDMINE_DB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: xeon-services
+                key: postgres.db_name
+          - name: REDMINE_SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                name: redmine-secret
+                key: secret_key
+          - name: REDMINE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: db_password
+        ports:
+          - containerPort: 3000

@@ -23,9 +23,15 @@ spec:
         name: postgres
         env:
           - name: POSTGRES_DB
-            value: "testdatabase"
+            valueFrom:
+              configMapKeyRef:
+                name: xeon-services
+                key: postgres.db_name
           - name: POSTGRES_USER
-            value: "testuser"
+            valueFrom:
+              configMapKeyRef:
+                name: xeon-services
+                key: postgres.db_user
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
