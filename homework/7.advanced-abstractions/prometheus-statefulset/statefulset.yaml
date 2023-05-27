@@ -15,16 +15,16 @@ spec:
         app: prometheus
     spec:
       serviceAccount: prometheus
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: 30
       initContainers:
       - image: busybox
         name: mount-permissions-fix
         command: ["sh", "-c", "chmod 777 /prometheus"]
         volumeMounts:
-        - name: prometheus
+        - name: data-vol
           mountPath: /prometheus
       containers:
-        - name: prometheus-k8s
+        - name: prometheus
           image: prom/prometheus:v2.19.2
           env:
           ports:
@@ -33,12 +33,15 @@ spec:
               containerPort: 9090
           imagePullPolicy: Always
           volumeMounts:
-            - name: config-volume
-              mountPath: /etc/prometheus
-            - name: data
+            - name: data-vol
               mountPath: /prometheus
+            - name: config-vol
+              mountPath: /etc/prometheus
       volumes:
-        - name: config-volume
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: data-vol
+        - name: config-vol
           configMap:
             name: prometheus
             items:
@@ -58,7 +61,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
   volumeClaimTemplates:
     - metadata:
-        name: data
+        name: data-vol
       spec:
         accessModes: ["ReadWriteOnce"]
         resources:
